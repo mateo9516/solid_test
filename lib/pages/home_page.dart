@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:solid_test/models/country.dart';
+import 'package:solid_test/pages/countries_page.dart';
 import 'package:solid_test/pages/random_color_page.dart';
+import 'package:solid_test/services/http_provider.dart';
 import 'package:solid_test/shared/responsive_size.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,6 +19,13 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage>{
 
   @override
+  void initState(){
+    _getCountries();
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context){
     ResponsiveSize().init(context);
 
@@ -24,7 +36,7 @@ class HomePageState extends State<HomePage>{
 
     final _optionsPages = <Widget>[
       const Center(child: RandomColorPage()),
-      const Center(child: Icon(Icons.image))
+      const Center(child: CountriesPage())
     ];
 
 
@@ -40,6 +52,21 @@ class HomePageState extends State<HomePage>{
           children: _optionsPages),
       )
     );
+  }
+
+
+  Future<void> _getCountries() async{
+    final res = await HttpProvider().getCountries();
+
+    
+    
+    List<dynamic> listJson = jsonDecode(res)['data'];
+
+    List<Country> countries = listJson.map((e) {
+      return Country.fromJson(e);
+    }).toList();
+
+    CountriesPage.countriesList.listCountriesSet = countries;
   }
 
 }
